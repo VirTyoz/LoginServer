@@ -162,7 +162,7 @@ public class Client{
 		}
 	}
 	
-	public void formationServerList(){
+	/*public void formationServerList(){
 		try {
 			loginServerRS = loginServerStmt.executeQuery("SELECT * FROM gameservers");
 			
@@ -177,6 +177,19 @@ public class Client{
 				logger.info("ServerList Ok");
 				sendToClient(serializer.serialize(serverList));
 			}
+		} catch (Exception e) {
+			logger.catching(e);
+		}
+	}*/
+	
+	
+	public void formationServerList(){
+		try {
+			serverList = clientService.serverList();
+				
+				logger.info("ServerList Ok"+serverList.serverPort);
+				sendToClient(serializer.serialize(serverList));
+			
 		} catch (Exception e) {
 			logger.catching(e);
 		}
