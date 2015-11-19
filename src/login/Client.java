@@ -1,13 +1,9 @@
-package loginserver;
+package login;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,25 +12,22 @@ import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TBinaryProtocol;
 
+import login.pocket.Init;
+import login.pocket.LoginFail;
+import login.pocket.LoginOk;
+import login.pocket.PlayOk;
+import login.pocket.PocketId;
+import login.pocket.RequestAuthLogin;
+import login.pocket.RequestServerList;
+import login.pocket.RequestServerLogin;
+import login.pocket.ServerList;
 import login.service.LoginService;
-import loginserver.pocket.Init;
-import loginserver.pocket.LoginFail;
-import loginserver.pocket.LoginOk;
-import loginserver.pocket.PlayOk;
-import loginserver.pocket.PocketId;
-import loginserver.pocket.RequestAuthLogin;
-import loginserver.pocket.RequestServerList;
-import loginserver.pocket.RequestServerLogin;
-import loginserver.pocket.ServerList;
 
 public class Client{
 	private LoginService.Client clientService;
 	private Socket connectionClient;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private Connection loginServerDB;
-	private Statement loginServerStmt;
-	private ResultSet loginServerRS;
 	private TSerializer serializer;
 	private TDeserializer deserializer;
 	public volatile Init init;
@@ -48,7 +41,7 @@ public class Client{
 	public volatile RequestServerLogin requestServerLogin;
 	
 	private static final Logger logger = LogManager.getLogger(Client.class);
-	public Client(Socket connectionClient, Connection loginServerDB, LoginService.Client clientService) throws IOException, SQLException{
+	public Client(Socket connectionClient, LoginService.Client clientService){
 		
 		init = new Init();
 		requestAuthLogin = new RequestAuthLogin();
@@ -61,18 +54,19 @@ public class Client{
 		requestServerLogin = new RequestServerLogin();
 		
 		this.connectionClient = connectionClient;
-		this.loginServerDB=loginServerDB;
 		this.clientService=clientService;
 		
-		inputStream = connectionClient.getInputStream();
-		outputStream = connectionClient.getOutputStream();
+		try {
+			inputStream = connectionClient.getInputStream();
+			outputStream = connectionClient.getOutputStream();
+		} catch (IOException e) {
+			logger.info(e);;
+		}
 		
 		serializer = new TSerializer(new TBinaryProtocol.Factory());
 		deserializer = new TDeserializer(new TBinaryProtocol.Factory());
-
-		loginServerStmt = loginServerDB.createStatement();
 		
-		new ReadThread().start();
+		new ReadThreadClient().start();
 		sendConnectNewClient();
 	}
 	
@@ -92,39 +86,6 @@ public class Client{
 		}
 	}
 	
-	
-	/*public void authorizationClient(){
-		try {
-			
-			loginServerRS = loginServerStmt.executeQuery("SELECT * FROM accounts WHERE login = '"+requestAuthLogin.login+"'AND password = '"+requestAuthLogin.password+"'");
-			
-			
-			
-			if(loginServerRS.next()){
-				
-				if(loginServerRS.getInt("accessLevel")!=-1){
-				loginOk.id = 3;
-				
-				logger.info("LoginOk Ok");
-				sendToClient(serializer.serialize(loginOk));
-				}else{
-					loginFail.id = 2;
-					loginFail.error = -1;
-					
-					logger.info("LoginFail Ok ban");
-					sendToClient(serializer.serialize(loginFail));
-				}
-			}else{
-				loginFail.id = 2;
-				loginFail.error = 1;
-				
-				logger.info("LoginFail Ok log. pas.");
-				sendToClient(serializer.serialize(loginFail));
-			}
-			}catch (Exception e) {
-				logger.catching(e);
-		}
-	}*/
 	
 	public void authorizationClient(){
 		try {
@@ -157,30 +118,10 @@ public class Client{
 				break;
 			}
 		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.info(e);
 		}
 	}
-	
-	/*public void formationServerList(){
-		try {
-			loginServerRS = loginServerStmt.executeQuery("SELECT * FROM gameservers");
-			
-			while(loginServerRS.next()){
-				serverList.id = 8;
-				serverList.serverIp = loginServerRS.getString("host");
-				serverList.serverPort = loginServerRS.getShort("port");
-				serverList.serverAgeLimit = loginServerRS.getShort("age_limit");
-				serverList.serverType = loginServerRS.getShort("type");
-				serverList.serverOnlineLimit = loginServerRS.getShort("online_limit");
-				
-				logger.info("ServerList Ok");
-				sendToClient(serializer.serialize(serverList));
-			}
-		} catch (Exception e) {
-			logger.catching(e);
-		}
-	}*/
 	
 	
 	public void formationServerList(){
@@ -222,7 +163,7 @@ public class Client{
 	}
 	
 	
-	private class ReadThread extends Thread{
+	private class ReadThreadClient extends Thread{
 		@Override
 		public void run(){
 			super.run();
@@ -267,10 +208,8 @@ public class Client{
 					return;
 				}
 			}
-			
 		}
 	}
-	
 }
 
 
