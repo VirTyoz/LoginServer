@@ -9,5 +9,14 @@
 	<classpathentry exported="true" kind="lib" path="lib/libthrift-0.9.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.7.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-simple-1.7.12.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-buffer-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-codec-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-codec-socks-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-common-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-handler-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-transport-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-transport-rxtx-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-transport-sctp-4.0.33.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/netty-transport-udt-4.0.33.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
